@@ -31,97 +31,115 @@ def custo_medio_frete(df):
     df['Frete'] = df['Frete'].round(2)
     return df['Frete'].mean()
 
-# URL para os dados
-url = "https://raw.githubusercontent.com/alura-es-cursos/challenge1-data-science/refs/heads/main/base-de-dados-challenge-1/loja_1.csv"
+# URLs das lojas
+url1 = "https://raw.githubusercontent.com/alura-es-cursos/challenge1-data-science/refs/heads/main/base-de-dados-challenge-1/loja_1.csv"
+url2 = "https://raw.githubusercontent.com/alura-es-cursos/challenge1-data-science/refs/heads/main/base-de-dados-challenge-1/loja_2.csv"
+url3 = "https://raw.githubusercontent.com/alura-es-cursos/challenge1-data-science/refs/heads/main/base-de-dados-challenge-1/loja_3.csv"
+url4 = "https://raw.githubusercontent.com/alura-es-cursos/challenge1-data-science/refs/heads/main/base-de-dados-challenge-1/loja_4.csv"
 
 # Carregar os dados
-loja = carregar_dados(url)
+df1 = carregar_dados(url1)
+df2 = carregar_dados(url2)
+df3 = carregar_dados(url3)
+df4 = carregar_dados(url4)
 
-# Faturamento total por loja
-faturamento = faturamento_total(loja)
+# Faturamento total por loja (para comparação geral)
+faturamento_total_lojas = {
+    'Loja 1': df1['Preço'].sum(),
+    'Loja 2': df2['Preço'].sum(),
+    'Loja 3': df3['Preço'].sum(),
+    'Loja 4': df4['Preço'].sum(),
+}
 
-# Categorias mais populares
-categorias = categorias_populares(loja)
+df_faturamento_total = pd.DataFrame.from_dict(faturamento_total_lojas, orient='index', columns=['Faturamento'])
 
-# Produtos mais vendidos
-produtos_vendidos = produtos_mais_vendidos(loja)
-
-# Custo médio do frete
-frete = custo_medio_frete(loja)
-
-# Carregar os dados
-loja = carregar_dados(url)
-
-# Exibindo os resultados das análises
-print("\nFaturamento total por loja:")
-print(faturamento_total(loja))
-
-print("\nCategorias mais populares:")
-print(categorias_populares(loja))
-
-print(f"\nMédia de avaliação dos clientes: {media_avaliacao(loja):.2f}")
-
-print("\nTop 5 produtos mais vendidos:")
-print(produtos_mais_vendidos(loja))
-
-print("\nTop 5 produtos menos vendidos:")
-print(produtos_menos_vendidos(loja))
-
-print(f"\nCusto médio do frete: R$ {custo_medio_frete(loja):.2f}")
-
-
-# 1. Gráfico de barras do Faturamento Total por Loja
-plt.figure(figsize=(10,6))
-faturamento.plot(kind='bar', color='skyblue')
+# Exibir gráfico comparativo das lojas
+plt.figure(figsize=(8,6))
+df_faturamento_total.plot(kind='bar', legend=False, color='mediumseagreen')
 plt.title('Faturamento Total por Loja')
 plt.ylabel('Faturamento (R$)')
-plt.xlabel('Loja')
-plt.xticks(rotation=45)
+plt.xlabel('Lojas')
+plt.xticks(rotation=0)
+plt.tight_layout()
 plt.show()
 
-#2.Gráfico de Barras das Categorias mais Populares
+# Agora juntando todas as lojas num DataFrame único para análises gerais
+df_geral = pd.concat([df1, df2, df3, df4])
+
+# Outras análises
+faturamento = faturamento_total(df_geral)
+categorias = categorias_populares(df_geral)
+media = media_avaliacao(df_geral)
+produtos_vendidos = produtos_mais_vendidos(df_geral)
+produtos_pouco_vendidos = produtos_menos_vendidos(df_geral)
+frete = custo_medio_frete(df_geral)
+
+# Exibir análises no console
+print("\nFaturamento total por loja (baseado no local da compra):")
+print(faturamento)
+
+print("\nCategorias mais populares:")
+print(categorias)
+
+print(f"\nMédia de avaliação dos clientes: {media:.2f}")
+
+print("\nTop 5 produtos mais vendidos:")
+print(produtos_vendidos)
+
+print("\nTop 5 produtos menos vendidos:")
+print(produtos_pouco_vendidos)
+
+print(f"\nCusto médio do frete: R$ {frete:.2f}")
+
+# Gráficos
+# 1. Faturamento total por loja (baseado em local da compra)
 plt.figure(figsize=(10,6))
-categorias.plot(kind='bar', color= 'lightgreen')
+faturamento.plot(kind='bar', color='skyblue')
+plt.title('Faturamento Total por Local de Compra')
+plt.ylabel('Faturamento (R$)')
+plt.xlabel('Local')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# 2. Categorias mais populares
+plt.figure(figsize=(10,6))
+categorias.plot(kind='bar', color='lightgreen')
 plt.title('Categorias Mais Populares')
 plt.ylabel('Quantidade de Produtos')
 plt.xlabel('Categoria de Produto')
 plt.xticks(rotation=45)
+plt.tight_layout()
 plt.show()
 
-# 3. Gráfico de barras das Avaliações
-# Média de avaliação dos clientes
-media = media_avaliacao(loja)
-plt.figure(figsize=(6, 6))
+# 3. Média de avaliação
+plt.figure(figsize=(6,6))
 plt.bar(['Avaliação Média'], [media], color='lightcoral')
 plt.title('Média de Avaliação dos Clientes')
 plt.ylabel('Avaliação')
 plt.ylim(0,5)
+plt.tight_layout()
 plt.show()
 
-# 4. Gráfico de barras dos Produtos Mais Vendidos
+# 4. Top 5 produtos mais vendidos
 plt.figure(figsize=(10,6))
 produtos_vendidos.plot(kind='bar', color='orange')
-plt.title('Top5 Produtos Mais Vendidos')
+plt.title('Top 5 Produtos Mais Vendidos')
 plt.ylabel('Quantidade Vendida')
 plt.xlabel('Produto')
 plt.xticks(rotation=45)
+plt.tight_layout()
 plt.show()
 
-# 5. Gráfico de pizza para o Custo Médio de Frete
-# Podemos mostrar uma distribuição entre frete baixo, médio e alto
-
-df = loja  
-
+# 5. Gráfico de pizza do custo de frete
 quantidade_frete = [
-    df[df['Frete'] < 10].shape[0],
-    df[(df['Frete'] >= 10) & (df['Frete'] < 20)].shape[0],
-    df[df['Frete'] >= 20].shape[0]
+    df_geral[df_geral['Frete'] < 10].shape[0],
+    df_geral[(df_geral['Frete'] >= 10) & (df_geral['Frete'] < 20)].shape[0],
+    df_geral[df_geral['Frete'] >= 20].shape[0]
 ]
 
-# Definindo os rótulos
 faixa_frete = ['< R$10', 'R$10 a R$19,99', '≥ R$20']
 
-# Plotando o gráfico de pizza
 plt.figure(figsize=(8, 8))
 plt.pie(
     quantidade_frete,
@@ -131,5 +149,5 @@ plt.pie(
     colors=['lightblue', 'lightgreen', 'lightcoral']
 )
 plt.title('Distribuição do Custo de Frete')
-plt.axis('equal')  # Para manter o formato redondo
+plt.axis('equal')
 plt.show()
